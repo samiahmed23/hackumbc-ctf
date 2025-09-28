@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Submission • hackUMBC 2025</title>
+	<link rel="stylesheet" href="styles/main.css">
+	<style>
+		.main{max-width:720px;margin:20px auto;background:var(--panel);border-radius:12px;padding:16px;text-align:center}
+		.big{font-size:24px;margin:10px 0}
+		.spark{filter:drop-shadow(0 0 10px var(--glow));animation:sparkle 2s ease-in-out infinite}
+		@keyframes sparkle{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:0.8}}
+		.success-text{animation:fadeInUp 1s ease-out}
+		@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+	</style>
+</head>
+<body>
+	<header class="site-header">
+		<h1>Submission</h1>
+		<p class="subtitle">Final step – simulated offline submission.</p>
+	</header>
+	<main class="main">
+		<section id="flag-input-section">
+			<h2>Final Submission - hackUMBC 2025</h2>
+			<p>You've successfully traced the phantom's trail and reached the final submission portal. Dr. Chen's voice crackles through the intercom:</p>
+			
+			<div class="story-content">
+				<p>"Excellent work! You've uncovered both authentication flags and proven your understanding of Unicode security and URL fragment routing. Now, to complete your submission and restore the hackUMBC 2025 system, you must enter the final flag you discovered."</p>
+				
+				<p><strong>Enter the second flag you found in The Commons:</strong></p>
+				
+				<div class="flag-input">
+					<input type="text" id="finalFlag" placeholder="HackUMBC{...}" style="width:300px;padding:12px;border-radius:8px;border:2px solid var(--accent);background:#0e1421;color:var(--text);font-size:16px;text-align:center">
+					<button id="submitFlag" class="cta" style="margin-left:10px">Submit Flag</button>
+				</div>
+				
+				<div id="flag-result" style="margin-top:16px;padding:12px;border-radius:8px;display:none"></div>
+			</div>
+		</section>
+		
+		<section id="success-section" style="display:none">
+			<svg class="spark" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+				<circle cx="60" cy="60" r="40" fill="none" stroke="var(--accent)" stroke-width="3"></circle>
+				<circle cx="60" cy="60" r="30" fill="none" stroke="#e8eef7" stroke-width="2"></circle>
+			</svg>
+			<h2 class="success-text">🎉 Challenge Complete! 🎉</h2>
+			<p class="success-text">Congratulations! You've successfully restored the hackUMBC 2025 check‑in system!</p>
+			
+			<div class="flags-summary" style="background:#0e1421;padding:16px;border-radius:8px;margin:16px 0;border:2px solid var(--accent)">
+				<h3 style="color:var(--accent);margin:0 0 12px">Flags Collected:</h3>
+				<p><strong>Flag 1:</strong> <code style="color:var(--accent)">HackUMBC{unic0de-security-matters}</code></p>
+				<p><strong>Flag 2:</strong> <code style="color:var(--accent)">HackUMBC{fr4gment-routing-mastery}</code></p>
+			</div>
+			
+			<p><a class="cta" href="index.html">Return to Campus Map</a></p>
+		</section>
+	</main>
+	<script>
+	(function(){
+		const finalFlag = document.getElementById('finalFlag');
+		const submitBtn = document.getElementById('submitFlag');
+		const flagResult = document.getElementById('flag-result');
+		const flagSection = document.getElementById('flag-input-section');
+		const successSection = document.getElementById('success-section');
+		
+		const expectedFlag = 'HackUMBC{fr4gment-routing-mastery}';
+		
+		submitBtn.addEventListener('click', () => {
+			const userInput = finalFlag.value.trim();
+			
+			if (userInput === expectedFlag) {
+				flagResult.textContent = '✅ Flag accepted! Challenge complete!';
+				flagResult.style.cssText = 'margin-top:16px;padding:12px;border-radius:8px;background:#0e1421;color:#7de38b;border:2px solid #7de38b;display:block';
+				
+				// Show success section after a delay
+				setTimeout(() => {
+					flagSection.style.display = 'none';
+					successSection.style.display = 'block';
+					
+					// Trigger celebration animation
+					const spark = document.querySelector('.spark');
+					spark.style.animation = 'sparkle 1s ease-in-out infinite';
+					
+					// Store completion
+					localStorage.setItem('ctf-complete', 'true');
+				}, 1500);
+			} else {
+				flagResult.textContent = '❌ Incorrect flag. Try again.';
+				flagResult.style.cssText = 'margin-top:16px;padding:12px;border-radius:8px;background:#0e1421;color:#ff8a8a;border:2px solid #ff8a8a;display:block';
+			}
+		});
+		
+		// Allow Enter key submission
+		finalFlag.addEventListener('keypress', (e) => {
+			if (e.key === 'Enter') {
+				submitBtn.click();
+			}
+		});
+	})();
+	</script>
+</body>
+</html>
+

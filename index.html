@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>hackUMBC 2025 – The Phantom Check‑in</title>
+	<link rel="preload" href="styles/main.css" as="style">
+	<link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+	<header class="site-header">
+		<h1>hackUMBC 2025 – The Phantom Check‑in</h1>
+		<p class="subtitle">Offline CTF • Learn by uncovering how the web really works</p>
+	</header>
+
+	<main class="layout">
+		<aside class="hints">
+			<h2>Learning Moments</h2>
+			<p>This CTF teaches overlooked web concepts:</p>
+			<ul>
+				<li><strong>Unicode Security:</strong> Homoglyphs and zero‑width characters can hide in plain sight</li>
+				<li><strong>QR Generation:</strong> Offline QR creation via canvas and data URLs</li>
+				<li><strong>Fragment Routing:</strong> URL fragments for client‑side navigation</li>
+				<li><strong>Percent Encoding:</strong> How browsers handle special characters in URLs</li>
+			</ul>
+			<div class="links">
+				<h3>Reference Links</h3>
+				<p><a href="https://unicode.org/reports/tr36/" target="_blank" rel="noopener">Unicode Security Considerations</a></p>
+				<p><a href="https://www.w3.org/International/questions/qa-normalization" target="_blank" rel="noopener">Unicode Normalization (W3C)</a></p>
+				<p><a href="https://url.spec.whatwg.org/" target="_blank" rel="noopener">WHATWG URL Standard</a></p>
+				<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/URL/hash" target="_blank" rel="noopener">URL.hash documentation</a></p>
+			</div>
+		</aside>
+
+		<section class="map-panel">
+			<div class="map-wrap">
+				<object id="umbc-map" type="image/svg+xml" data="assets/map.svg" aria-label="UMBC map"></object>
+				<div class="hotspots">
+					<button id="hotspot-library" class="hotspot disabled" style="left: 20%; top: 38%;" data-target="puzzle">Library</button>
+					<button id="hotspot-commons" class="hotspot disabled" style="left: 61%; top: 52%;" data-target="viewer">The Commons</button>
+					<button id="hotspot-ils" class="hotspot active" style="left: 19%; top: 45%;" data-target="about">ILS - START HERE</button>
+				</div>
+			</div>
+			<div class="panel narrative" id="panel-about">
+				<h2>The Phantom Arrives</h2>
+				<div class="story-content">
+					<p>Welcome to hackUMBC 2025, the most prestigious hackathon in the region. You've arrived at the Information and Library Services (ILS) building, the heart of UMBC's academic computing infrastructure.</p>
+					
+					<p>But something's wrong. The check-in scanners are down, and there's a strange energy in the air. Staff members are whispering about a "phantom" entry that somehow slipped through the system during the pre-registration process. This mysterious participant has left traces throughout the campus network, and now the entire check-in system is compromised.</p>
+					
+					<p>Dr. Sarah Chen, the hackathon coordinator, approaches you with urgent news: "We've discovered that the phantom left a series of encoded messages across our campus systems. If we can't trace and validate their entry, we might have to shut down the entire event. We need someone with your technical skills to follow the phantom's trail and restore our security protocols."</p>
+					
+					<p>She hands you a campus map with three critical locations marked: the ILS building (where you are now), the Library, and The Commons. "The phantom's trail leads through these locations. Start here at ILS, then follow the path to the Library where you'll find the first clue. Each step will unlock the next location."</p>
+					
+					<p><strong>Your Mission:</strong> Restore the hackUMBC 2025 check-in system by following the phantom's trail and collecting the authentication flags. The phantom has hidden two critical flags in the format <code>HackUMBC{...}</code> that will validate your credentials and unlock the submission portal.</p>
+					
+					<p>Are you ready to begin your investigation?</p>
+					
+					<button id="start-investigation" class="cta">Begin Investigation</button>
+				</div>
+			</div>
+			<div class="panel" id="panel-puzzle" hidden>
+				<h2>Act I – The Library Clue</h2>
+				<div class="story-content">
+					<p>You make your way to the Library, following the digital breadcrumbs left by the phantom. The building is eerily quiet, with only the soft hum of computers and the occasional rustle of papers breaking the silence.</p>
+					
+					<p>In the computer lab, you find a terminal still logged in with a strange message displayed:</p>
+					
+					<div class="terminal-message">
+						<code>Rɛtriеvе‑thе‑phаntоm‑kеy@HackUMBC</code>
+					</div>
+					
+					<p>The message looks normal at first glance, but something feels off. The characters seem slightly different, and when you try to copy the text, it doesn't behave as expected. This is clearly a Unicode security challenge.</p>
+					
+					<p>Dr. Chen's voice crackles through your radio: "The phantom has left a Unicode normalization puzzle. This is a common security vulnerability where attackers use visually identical characters from different Unicode blocks to create confusion. You'll need to normalize this text using the NFKC (Normalization Form Compatibility Decomposition) algorithm and remove any zero-width characters."</p>
+					
+					<p><strong>Your Task:</strong> Normalize the phantom's message and generate a QR code badge that will authenticate you for the next phase of the investigation.</p>
+					
+					<p>Navigate to the check-in system to begin processing the Unicode challenge.</p>
+					
+					<button id="go-to-checkin" class="cta">Go to Check-in System</button>
+				</div>
+			</div>
+			<div class="panel" id="panel-viewer" hidden>
+				<h2>Act II – The Commons Workspace</h2>
+				<div class="story-content">
+					<p>Excellent work! Your QR badge has been validated, and you've been granted access to The Commons workspace. Dr. Chen's voice comes through again: "The phantom's trail continues here. We've discovered that they left an encoded repository link somewhere in our campus file system."</p>
+					
+					<p>As you enter The Commons, you notice the collaborative workspace is set up with multiple workstations. One terminal displays a cryptic message about URL fragments and percent-encoding. This is clearly the next phase of the phantom's challenge.</p>
+					
+					<p>"The phantom has hidden their repository link using URL fragment routing," Dr. Chen explains. "They've encoded the path using percent-encoding and hidden it within our local file system. You'll need to decode the fragment to reveal the hidden repository link."</p>
+					
+					<p><strong>Your Task:</strong> Decode the percent-encoded fragment to locate the phantom's repository link. The fragment contains a path to a local file that holds the second authentication flag.</p>
+					
+					<p>This challenge will test your understanding of URL encoding, fragment identifiers, and client-side routing mechanisms.</p>
+					
+					<button id="go-to-viewer" class="cta">Open Fragment Viewer</button>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<p>Local‑only demo • No server required</p>
+	</footer>
+
+	<script>
+	(function() {
+		const panelAbout = document.getElementById('panel-about');
+		const panelPuzzle = document.getElementById('panel-puzzle');
+		const panelViewer = document.getElementById('panel-viewer');
+		const panels = [panelAbout, panelPuzzle, panelViewer];
+		
+		// Progressive unlock state
+		let currentStep = 0; // 0: ILS, 1: Library, 2: Commons
+		
+		function show(panel) {
+			panels.forEach(p => p.hidden = true);
+			panel.hidden = false;
+		}
+		
+		function updateHotspotStates() {
+			const libraryBtn = document.getElementById('hotspot-library');
+			const commonsBtn = document.getElementById('hotspot-commons');
+			const ilsBtn = document.getElementById('hotspot-ils');
+			
+			// Reset all buttons
+			[libraryBtn, commonsBtn, ilsBtn].forEach(btn => {
+				btn.classList.remove('active', 'disabled');
+				btn.disabled = false;
+			});
+			
+			// Apply current state
+			if (currentStep >= 0) {
+				ilsBtn.classList.add('active');
+			}
+			if (currentStep >= 1) {
+				libraryBtn.classList.remove('disabled');
+			} else {
+				libraryBtn.classList.add('disabled');
+				libraryBtn.disabled = true;
+			}
+			if (currentStep >= 2) {
+				commonsBtn.classList.remove('disabled');
+			} else {
+				commonsBtn.classList.add('disabled');
+				commonsBtn.disabled = true;
+			}
+		}
+		
+		// Event listeners
+		document.querySelectorAll('.hotspot').forEach(btn => {
+			btn.addEventListener('click', () => {
+				if (btn.disabled) return;
+				
+				const target = btn.getAttribute('data-target');
+				if (target === 'puzzle' && currentStep >= 1) {
+					show(panelPuzzle);
+				} else if (target === 'viewer' && currentStep >= 2) {
+					show(panelViewer);
+				} else if (target === 'about') {
+					show(panelAbout);
+				}
+			});
+		});
+		
+		// Story progression buttons
+		document.getElementById('start-investigation')?.addEventListener('click', () => {
+			currentStep = 1;
+			updateHotspotStates();
+			show(panelPuzzle);
+		});
+		
+		document.getElementById('go-to-checkin')?.addEventListener('click', () => {
+			window.location.href = 'checkin.html';
+		});
+		
+		document.getElementById('go-to-viewer')?.addEventListener('click', () => {
+			window.location.href = 'viewer.html#loc=%2Fassets%2Fplan%25F0%259F%2593%259D.txt';
+		});
+		
+		// Check for returning from other pages
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.get('step') === '1') {
+			currentStep = 1;
+		} else if (urlParams.get('step') === '2') {
+			currentStep = 2;
+		}
+		
+		// Check if challenge is completed
+		if (localStorage.getItem('ctf-complete') === 'true') {
+			// Show completion celebration
+			document.querySelector('.site-header h1').textContent = '🎉 hackUMBC 2025 - Challenge Complete! 🎉';
+			document.querySelector('.site-header .subtitle').textContent = 'Congratulations! You\'ve restored the system!';
+		}
+		
+		// Initialize
+		updateHotspotStates();
+		show(panelAbout);
+	})();
+	</script>
+</body>
+</html>
+

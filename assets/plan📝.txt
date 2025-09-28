@@ -1,0 +1,13 @@
+You found the phantom's plan.
+
+BEGIN_REPO
+https%3A%2F%2Fgithub.com%2Fyour-user%2Fumbc-phantom
+END_REPO
+
+Flag 2: HackUMBC{fr4gment-routing-mastery}
+
+Notes:
+- The fragment carried a percent-encoded path to this file.
+- Fragments are never sent to servers; local pages can parse them to route.
+- The second flag is hidden in the submission process.
+

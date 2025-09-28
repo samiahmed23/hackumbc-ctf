@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Viewer • hackUMBC 2025</title>
+	<link rel="stylesheet" href="styles/main.css">
+	<style>
+		.main{max-width:820px;margin:20px auto;background:var(--panel);border-radius:12px;padding:16px}
+		pre{background:#0e1421;color:var(--text);padding:12px;border-radius:8px;overflow:auto}
+		.controls{display:flex;gap:8px;flex-wrap:wrap}
+		.hints{background:#0e1421;padding:12px;border-radius:8px;margin:12px 0}
+		.hints h3{margin:0 0 8px;color:var(--accent)}
+		.hints ul{margin:0;padding-left:20px}
+		.hints li{margin:6px 0}
+		.hints a{color:var(--accent);text-decoration:none}
+		.hints a:hover{text-decoration:underline}
+	</style>
+</head>
+<body>
+	<header class="site-header">
+		<h1>Fragment Viewer</h1>
+		<p class="subtitle">Decode percent‑encoded fragments to locate hidden content.</p>
+	</header>
+	<main class="main">
+		<section>
+			<div class="controls">
+				<input id="frag" type="text" style="flex:1;min-width:260px;background:#0e1421;color:var(--text);border:1px solid #1d2740;border-radius:8px;padding:10px">
+				<button id="btnParse" class="cta" type="button">Parse</button>
+				<button id="btnGo" class="cta" type="button">Load</button>
+			</div>
+			<p>Tip: Fragments (`#...`) never leave the browser—perfect for local routing.</p>
+			<div class="hints">
+				<h3>Learning Tips</h3>
+				<ul>
+					<li><strong>Nudge:</strong> Not all URL symbols travel the same path. <a href="https://url.spec.whatwg.org/" target="_blank">URL Standard – Percent‑Encoding</a></li>
+					<li><strong>Concept:</strong> Fragments (`#...`) don't reach servers. Use them for local routing. <a href="https://developer.mozilla.org/en-US/docs/Web/API/URL/hash" target="_blank">URL.hash documentation</a></li>
+					<li><strong>Partial:</strong> Double-encoding can hide the real path. Try decoding twice.</li>
+				</ul>
+			</div>
+		</section>
+		<section>
+			
+			<p><a id="goNext" class="cta" href="submit.html">Proceed to Submit</a></p>
+		</section>
+	</main>
+
+	<script>
+	(function(){
+		const frag = document.getElementById('frag');
+		const out = document.getElementById('out');
+		const content = document.getElementById('content');
+		const paramsFromHash = (hash) => {
+			const raw = hash.startsWith('#') ? hash.slice(1) : hash;
+			// Single decode pass, but preserve percent signs intended as literals
+			const search = new URLSearchParams(raw);
+			const obj = {};
+			for (const [k,v] of search.entries()) obj[k]=v;
+			return obj;
+		};
+		function log(msg){ out.textContent += msg + "\n"; }
+		async function loadFile(path){
+			try{
+				const res = await fetch(path);
+				if(!res.ok) throw new Error('HTTP '+res.status);
+				const txt = await res.text();
+				content.textContent = txt;
+				// Try to reconstruct a repo link if present between markers
+				const m = txt.match(/BEGIN_REPO\n([\s\S]*?)\nEND_REPO/);
+				if (m){
+					const encoded = m[1].trim();
+					const decoded = decodeURIComponent(encoded);
+					log('Discovered encoded repo link: '+encoded);
+					log('Decoded repo link: '+decoded);
+					log('Repository link found: ' + decoded);
+					const a = document.createElement('a');
+					a.href = 'submit.html'; 
+					a.textContent = 'Proceed to Final Submission'; 
+					a.className='cta';
+					a.style.cssText = 'display:inline-block;margin-top:8px;color:#0b0f15;background:var(--accent);padding:8px 12px;border-radius:10px;text-decoration:none';
+					out.appendChild(a);
+				}
+				
+				// Extract Flag 2 if present
+				const flagMatch = txt.match(/Flag 2: (HackUMBC\{[^}]+\})/);
+				if (flagMatch) {
+					log('🎉 Flag 2 found: ' + flagMatch[1]);
+					const flagDiv = document.createElement('div');
+					flagDiv.style.cssText = 'background:#0e1421;padding:10px;border-radius:8px;margin:10px 0;border:2px solid var(--accent)';
+					flagDiv.innerHTML = '<strong>Flag 2:</strong> <code style="color:var(--accent)">' + flagMatch[1] + '</code>';
+					out.appendChild(flagDiv);
+				}
+			}catch(e){
+				content.textContent = 'Failed to load: '+e.message;
+			}
+		}
+		document.getElementById('btnParse').addEventListener('click', ()=>{
+			out.textContent='';
+			const obj = paramsFromHash(frag.value);
+			log('Parsed: '+JSON.stringify(obj));
+		});
+		document.getElementById('btnGo').addEventListener('click', ()=>{
+			out.textContent='';
+			const obj = paramsFromHash(frag.value);
+			if (!obj.loc){ log('Missing loc param'); return; }
+			const path = decodeURIComponent(obj.loc);
+			log('Loading: '+path);
+			loadFile(path);
+		});
+		// Init from current location
+		frag.value = location.hash.slice(1);
+		if (frag.value) document.getElementById('btnGo').click();
+	})();
+	</script>
+</body>
+</html>
+

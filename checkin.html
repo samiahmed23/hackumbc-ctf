@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Check‑in • hackUMBC 2025</title>
+	<link rel="stylesheet" href="styles/main.css">
+	<style>
+		.main{max-width:720px;margin:20px auto;background:var(--panel);border-radius:12px;padding:16px}
+		.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+		textarea{width:100%;min-height:90px;background:#0e1421;color:var(--text);border:1px solid #1d2740;border-radius:8px;padding:10px}
+		label{display:block;margin:12px 0 6px}
+		.result{margin-top:10px;padding:10px;border-radius:8px;background:#0e1421}
+		.ok{color:#7de38b}
+		.bad{color:#ff8a8a}
+		.puzzle-phrase{background:#0e1421;color:var(--text);padding:12px;border-radius:8px;font-family:monospace;font-size:18px;margin:10px 0;border:2px solid var(--accent);cursor:pointer;user-select:all}
+		.puzzle-phrase:hover{background:#1a2332}
+		.hints{background:#0e1421;padding:12px;border-radius:8px;margin-top:12px}
+		.hints h3{margin:0 0 8px;color:var(--accent)}
+		.hints ul{margin:0;padding-left:20px}
+		.hints li{margin:6px 0}
+		.hints a{color:var(--accent);text-decoration:none}
+		.hints a:hover{text-decoration:underline}
+		.normalization-workspace{background:#0e1421;padding:12px;border-radius:8px;margin:12px 0}
+		.normalization-workspace h3{margin:0 0 8px;color:var(--accent)}
+	</style>
+</head>
+<body>
+	<header class="site-header">
+		<h1>Check‑in</h1>
+		<p class="subtitle">Generate your badge QR, then upload it here (offline).</p>
+	</header>
+	<main class="main">
+		<section>
+			<h2>1) The Phantom's Phrase</h2>
+			<p>The phantom left this phrase, but something's not quite right...</p>
+			<div class="puzzle-phrase" id="puzzlePhrase">Rɛtriеvе‑thе‑phаntоm‑kеy@UMBC</div>
+			<p><small>Copy the phrase above and normalize it (NFKC) with zero‑width characters removed. The result should contain a flag in the format <code>HackUMBC{...}</code></small></p>
+			<div class="hints">
+				<h3>Learning Tips</h3>
+				<ul>
+					<li><strong>Nudge:</strong> Some letters are not who they seem. <a href="https://unicode.org/reports/tr36/" target="_blank">Unicode Security Considerations</a></li>
+					<li><strong>Concept:</strong> Different forms normalize differently. Try NFKC. <a href="https://www.w3.org/International/questions/qa-normalization" target="_blank">Unicode Normalization Forms</a></li>
+					<li><strong>Partial:</strong> Zero‑width characters can hide in plain sight (U+200B/U+200D).</li>
+				</ul>
+			</div>
+		</section>
+
+		<section>
+			<h2>2) Generate QR Badge</h2>
+			<p>Use <a href="https://www.qrcode-monkey.com/" rel="noopener">QRcode-Monkey.com</a> to generate your badge from the normalized text.</p>
+			<div class="qr-instructions">
+				<p><strong>Instructions:</strong></p>
+				<ol>
+					<li>Copy the normalized text you got from Step 1</li>
+					<li>Visit <a href="https://www.qrcode-monkey.com/" rel="noopener">QRcode-Monkey.com</a></li>
+					<li>Paste the normalized text and generate the QR code</li>
+					<li>Download the QR code as a PNG image</li>
+					<li>Upload it below for verification</li>
+				</ol>
+			</div>
+		</section>
+
+		<section>
+			<h2>3) Upload QR to verify</h2>
+
+			<ul>
+				<li>Upload the PNG you saved</li>
+				
+			</ul>
+			<label for="file">Upload QR PNG</label>
+			<input id="file" type="file" accept="image/png">
+			<div class="result" id="verifyOut"></div>
+			<p><a id="goNext" class="cta" href="index.html?step=2" hidden>Return to Campus Map</a></p>
+		</section>
+	</main>
+
+	<script src="scripts/normalize.js"></script>
+	<script src="scripts/qr-lite.js"></script>
+	<script>
+	(function(){
+        // Get references to the necessary HTML elements
+        const fileInput = document.getElementById('file');
+        const verifyOut = document.getElementById('verifyOut');
+        const goNext = document.getElementById('goNext');
+
+        // Listen for when a user selects a file
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) {
+                return; // Do nothing if no file is selected
+            }
+            
+            verifyOut.textContent = 'Verifying QR code...';
+            verifyOut.className = 'result';
+
+            const reader = new FileReader();
+
+            // When the file is loaded
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Create a temporary canvas to draw the image and read its data
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    // Decode the QR code from the canvas
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const decoded = jsQR(imageData.data, canvas.width, canvas.height);
+
+                    if (decoded && decoded.data) {
+                        const expectedPattern = /HackUMBC{.*}/; // Use the correct pattern for the flag
+                        
+                        // Check if the decoded QR data is correct
+                        if (expectedPattern.test(decoded.data)) {
+                            verifyOut.innerHTML = `
+                                <div style="color: #7de38b;">
+                                    ✅ QR Code Authenticated!<br>
+                                    <strong>Status:</strong> Check-in successful!
+                                </div>
+                            `;
+                            verifyOut.className = 'result ok';
+                            
+                            // This is the key part: reveal the hidden link on success
+                            goNext.hidden = false;
+                            
+                        } else {
+                            verifyOut.innerHTML = `
+                                <div style="color: #ff8a8a;">
+                                    ❌ QR verification failed! The content is incorrect.
+                                </div>
+                            `;
+                            verifyOut.className = 'result bad';
+                        }
+                    } else {
+                        verifyOut.textContent = 'Failed to decode QR code. Make sure it is a valid QR image.';
+                        verifyOut.className = 'result bad';
+                    }
+                };
+                img.src = event.target.result;
+            };
+            
+            // Read the uploaded file as a data URL
+            reader.readAsDataURL(file);
+        });
+	})();
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+</body>
+</html>
+
